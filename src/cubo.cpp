@@ -1,19 +1,8 @@
 /**
- * Demonstração: Cubo 3D - Pipeline MVP
- *
- * Este programa demonstra os conceitos básicos de transformações 3D usando
- * as três matrizes fundamentais do pipeline gráfico.
- *
  * Matrizes MVP:
  * - PROJECTION: Define como o mundo é projetado na tela
  * - VIEW: Define onde o observador está
  * - MODEL: Move/rotaciona/escalona o objeto (model = translate * rotate * scale)
- *
- * Compile com:
- * g++ src/cubo.cpp -o cubo -lGL -lGLU -lglut
- *
- * Execute:
- * ./cubo
  */
 
 #include <GL/glut.h>
@@ -153,7 +142,7 @@ void display()
 
     gluLookAt(0.0f, 0.0f, 8.0f,  // Posição da câmera (eye)
               0.0f, 0.0f, 0.0f,  // Para onde olha (center)
-              0.0f, 1.0f, 1.0f); // Vetor "para cima" (up)
+              0.0f, 1.0f, 0.0f); // Vetor "para cima" (up)
 
     // --- Eixos do mundo (no centro, sem transformações de modelo) ---
     if (debugShowAxes)
@@ -170,7 +159,7 @@ void display()
     glPushMatrix();
 
     // Transformações do objeto (aplicadas da direita para esquerda)
-    glRotatef(cubeRotation, 0.0f, 1.0f, 1.0f); // Rotação no eixo Y
+    glRotatef(cubeRotation, 0.0f, 1.0f, 0.0f); // Rotação no eixo Y
     glScalef(1.0f, 1.0f, 1.0f);                // Escala uniforme
 
     drawCube();
