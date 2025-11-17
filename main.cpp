@@ -17,7 +17,6 @@ struct Vertex
   float z;
 };
 
-// 8 vértices de um cubo centrado na origem, lado 1.0
 const Vertex cubePositions[8] = {
     {-0.5f, -0.5f, -0.5f}, // 0
     {0.5f, -0.5f, -0.5f},  // 1
@@ -85,7 +84,7 @@ void exibir()
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  gluLookAt(0.0, 0.0, 5.0,  // posição da câmera (eye)
+  gluLookAt(0.0, 0.0, 1.0,  // posição da câmera (eye)
             0.0, 0.0, 0.0,  // para onde a câmera olha (center)
             0.0, 1.0, 0.0); // vetor "para cima" (up)
 
