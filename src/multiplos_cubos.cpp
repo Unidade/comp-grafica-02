@@ -12,12 +12,12 @@
 // Configurações da janela
 int windowWidth = 1024;
 int windowHeight = 768;
-bool debugShowAxes = true;
+bool debugShowAxes = false;
 
 // Grid parameters
-const int GRID_SIZE = 3;        // 3x3x3 = 27 cubos
-const float SPACING = 2.5f;     // Espaçamento entre cubos
-const float CUBE_SIZE = 0.8f;   // Tamanho de cada cubo
+const int GRID_SIZE = 3;      // 3x3x3 = 27 cubos
+const float SPACING = 2.5f;   // Espaçamento entre cubos
+const float CUBE_SIZE = 0.8f; // Tamanho de cada cubo
 
 // Ângulo de rotação para animação
 float gridRotation = 0.0f;
@@ -139,9 +139,9 @@ void display()
     glLoadIdentity();
 
     // Câmera posicionada para ver toda a grade
-    gluLookAt(10.0f, 8.0f, 18.0f,  // Posição da câmera (eye)
-              0.0f, 0.0f, 0.0f,    // Para onde olha (center)
-              0.0f, 1.0f, 0.0f);   // Vetor "para cima" (up)
+    gluLookAt(10.0f, 8.0f, 18.0f, // Posição da câmera (eye)
+              0.0f, 0.0f, 0.0f,   // Para onde olha (center)
+              0.0f, 1.0f, 0.0f);  // Vetor "para cima" (up)
 
     // Eixos do mundo (opcional)
     if (debugShowAxes)
@@ -157,7 +157,7 @@ void display()
     glPushMatrix();
 
     // Rotação aplicada a TODOS os cubos juntos
-    glRotatef(gridRotation, 0.0f, 1.0f, 0.0f); // Rotação no eixo Y
+    glRotatef(gridRotation, 0.0f, 1.0f, 0.0f);
 
     // Loop triplo para criar grid 3D
     for (int x = 0; x < GRID_SIZE; x++)

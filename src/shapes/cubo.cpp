@@ -13,7 +13,7 @@
 // Configurações da janela
 int windowWidth = 1024;
 int windowHeight = 768;
-bool debugShowAxes = true; // Mostrar eixos XYZ
+bool debugShowAxes = false; // Mostrar eixos XYZ
 
 // Ângulo de rotação para animação
 float cubeRotation = 0.0f;
