@@ -1,3 +1,5 @@
 build
 *.exe
 settings.json
+main
+docs
