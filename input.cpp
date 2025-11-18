@@ -8,6 +8,8 @@ static int centerY = 0;
 // evita loop infinito quando fazemos warp do mouse
 static bool ignoreWarp = false;
 
+static bool firstMouse = true;
+
 // estados das teclas
 static bool keyW = false;
 static bool keyA = false;
@@ -97,6 +99,15 @@ void mouseMotion(int x, int y)
     if (ignoreWarp)
     {
         ignoreWarp = false;
+        return;
+    }
+
+    // PRIMEIRA VEZ: só centraliza, sem aplicar rotação
+    if (firstMouse)
+    {
+        firstMouse = false;
+        ignoreWarp = true;
+        glutWarpPointer(centerX, centerY);
         return;
     }
 
