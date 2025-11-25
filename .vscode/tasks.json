@@ -10,6 +10,7 @@
                 "draw.cpp",
                 "input.cpp",
                 "scene.cpp",
+                "texture.cpp",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
