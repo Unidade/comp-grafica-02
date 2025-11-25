@@ -32,12 +32,19 @@ Certifique-se de ter instalados os seguintes pacotes no seu sistema Linux:
 
 Use o comando abaixo para compilar o projeto e executá-lo imediatamente:
 
+### 🐧 Linux
 ```bash
 g++ main.cpp draw.cpp input.cpp scene.cpp texture.cpp shader.cpp \
     -o DoomLike \
     -lGLEW -lGL -lGLU -lglut && ./DoomLike
 ```
 
+### 🪟 Windows
+```bash
+g++ main.cpp draw.cpp input.cpp scene.cpp texture.cpp shader.cpp ^
+    -o DoomLike.exe ^
+    -lglew32 -lfreeglut -lopengl32 -lglu32 && DoomLike.exe
+```
 ## 🎮 Como Jogar
 
 A cena pode ser explorada em primeira pessoa, com movimentação típica de FPS clássico.
