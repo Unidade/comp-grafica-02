@@ -11,9 +11,11 @@
                 "input.cpp",
                 "scene.cpp",
                 "texture.cpp",
+                "shader.cpp",
                 "${file}",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
+                "-lGLEW",
                 "-lGL",
                 "-lGLU",
                 "-lglut"

@@ -1,6 +1,8 @@
+#include <GL/glew.h>
 #include <GL/glut.h>
 #include <math.h>
 #include "scene.h"
+#include <cstdio>
 
 #define NUM_TORRES 5
 #define RAIO 10.0f // raio das torres ao redor do centro
@@ -9,6 +11,7 @@ extern GLuint texChao;
 extern GLuint texTorre;
 extern GLuint texDegrau;
 extern GLuint texEsfera;
+extern GLuint progEsfera;
 
 static void desenhaLosango(float altura)
 {
@@ -394,11 +397,24 @@ void desenhaPiramideDegraus()
     float topoDegrausY = 5.0f * alturaDegrau;
     float raioEsfera = 3.0f;
 
+    glUseProgram(progEsfera);
+
+    // uniforms básicos
+    GLint locTime = glGetUniformLocation(progEsfera, "uTime");
+    GLint locStr = glGetUniformLocation(progEsfera, "uStrength");
+    GLint locSpeed = glGetUniformLocation(progEsfera, "uSpeed");
+    GLint locTex = glGetUniformLocation(progEsfera, "uTexture");
+
+    glUniform1f(locTime, tempoEsfera);
+    glUniform1f(locStr, 1.0f);
+    glUniform2f(locSpeed, 3.0f, 1.7f);
+
     glPushMatrix();
     glTranslatef(0.0f, topoDegrausY + raioEsfera + 0.2f, 0.0f);
-    glRotatef(anguloEsfera, 0.0f, 1.0f, 0.0f);
+    glRotatef(anguloEsfera, 1.0f, 1.0f, 0.0f);
 
     glBindTexture(GL_TEXTURE_2D, texEsfera);
+    glUniform1i(locTex, 0);
 
     // Ajuste da escala da textura na esfera
     glMatrixMode(GL_TEXTURE);
@@ -424,6 +440,8 @@ void desenhaPiramideDegraus()
     glMatrixMode(GL_MODELVIEW);
 
     glPopMatrix();
+
+    glUseProgram(0);
 
     glPopMatrix();
 }

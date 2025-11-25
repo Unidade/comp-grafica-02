@@ -3,6 +3,7 @@
 
 extern float anguloPiramide;
 extern float anguloEsfera;
+extern float tempoEsfera;
 
 extern float camX, camY, camZ;
 extern float yaw, pitch;
