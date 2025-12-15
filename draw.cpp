@@ -14,56 +14,73 @@ extern GLuint texEsfera;
 extern GLuint texLava;
 extern GLuint progEsfera;
 extern GLuint progLava;
+extern GLuint progDiamond;
 
 static void desenhaLosango(float altura)
 {
     float h = altura / 2.0f;
     float s = altura / 3.0f;
 
-    float claro[3] = {0.3f, 1.0f, 0.3f};
-    float escuro[3] = {0.0f, 0.6f, 0.0f};
+    // coordenadas de textura para compatibilidade (mesmo sem textura)
+    float texScale = 1.0f;
 
     glBegin(GL_TRIANGLES);
     // metade de cima
-    glColor3fv(claro);
+    glTexCoord2f(0.5f, 1.0f);
     glVertex3f(0.0f, h, 0.0f);
+    glTexCoord2f(0.0f, 0.5f);
     glVertex3f(-s, 0.0f, 0.0f);
+    glTexCoord2f(0.5f, 0.5f);
     glVertex3f(0.0f, 0.0f, s);
 
-    glColor3fv(escuro);
+    glTexCoord2f(0.5f, 1.0f);
     glVertex3f(0.0f, h, 0.0f);
+    glTexCoord2f(0.5f, 0.5f);
     glVertex3f(0.0f, 0.0f, s);
+    glTexCoord2f(1.0f, 0.5f);
     glVertex3f(s, 0.0f, 0.0f);
 
-    glColor3fv(claro);
+    glTexCoord2f(0.5f, 1.0f);
     glVertex3f(0.0f, h, 0.0f);
+    glTexCoord2f(1.0f, 0.5f);
     glVertex3f(s, 0.0f, 0.0f);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, 0.0f, -s);
 
-    glColor3fv(escuro);
+    glTexCoord2f(0.5f, 1.0f);
     glVertex3f(0.0f, h, 0.0f);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, 0.0f, -s);
+    glTexCoord2f(0.0f, 0.5f);
     glVertex3f(-s, 0.0f, 0.0f);
 
     // metade de baixo
-    glColor3fv(claro);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, -h, 0.0f);
+    glTexCoord2f(0.5f, 0.5f);
     glVertex3f(0.0f, 0.0f, s);
+    glTexCoord2f(0.0f, 0.5f);
     glVertex3f(-s, 0.0f, 0.0f);
 
-    glColor3fv(escuro);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, -h, 0.0f);
+    glTexCoord2f(1.0f, 0.5f);
     glVertex3f(s, 0.0f, 0.0f);
+    glTexCoord2f(0.5f, 0.5f);
     glVertex3f(0.0f, 0.0f, s);
 
-    glColor3fv(claro);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, -h, 0.0f);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, 0.0f, -s);
+    glTexCoord2f(1.0f, 0.5f);
     glVertex3f(s, 0.0f, 0.0f);
 
-    glColor3fv(escuro);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, -h, 0.0f);
+    glTexCoord2f(0.0f, 0.5f);
     glVertex3f(-s, 0.0f, 0.0f);
+    glTexCoord2f(0.5f, 0.0f);
     glVertex3f(0.0f, 0.0f, -s);
     glEnd();
 }
@@ -169,11 +186,30 @@ void desenhaTorresELosangos()
         glEnd();
         glPopMatrix();
 
-        // Losango verde girando em cima
+        // Losango verde girando em cima com shader
         glPushMatrix();
         glTranslatef(0.0f, alturaTorre + 1.2f, 0.0f);
         glRotatef(anguloPiramide, 0.0f, 1.0f, 0.0f);
+        
+        // aplica o shader dos losangos
+        glUseProgram(progDiamond);
+        
+        // passa os uniforms para o shader
+        GLint locTimeDiamond = glGetUniformLocation(progDiamond, "uTime");
+        GLint locPulseSpeedDiamond = glGetUniformLocation(progDiamond, "uPulseSpeed");
+        GLint locGlowDiamond = glGetUniformLocation(progDiamond, "uGlowIntensity");
+        
+        extern float tempoEsfera;
+        glUniform1f(locTimeDiamond, tempoEsfera);
+        glUniform1f(locPulseSpeedDiamond, 2.5f);  // velocidade da pulsação
+        glUniform1f(locGlowDiamond, 0.8f);       // intensidade do brilho
+        
+        // desenha o losango (o shader vai aplicar os efeitos)
+        glColor3f(1.0f, 1.0f, 1.0f); // cor branca para não interferir no shader
         desenhaLosango(1.5f);
+        
+        glUseProgram(0); // desativa o shader
+        
         glPopMatrix();
 
         glPopMatrix();

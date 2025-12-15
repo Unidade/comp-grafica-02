@@ -20,8 +20,10 @@ GLuint texTorre;
 GLuint texDegrau;
 GLuint texEsfera;
 GLuint texLava;
+GLuint texPorta;
 GLuint progEsfera;
 GLuint progLava;
+GLuint progDiamond;
 
 void display()
 {
@@ -117,15 +119,17 @@ int main(int argc, char **argv)
     glEnable(GL_TEXTURE_2D);
 
     // carregando texturas
-    texChao = carregaTextura("assets/181.png");
-    texTorre = carregaTextura("assets/091.png");
+    texChao = carregaTextura("assets/210.png");      // nova textura
+    texTorre = carregaTextura("assets/264.png");     // nova textura
     texDegrau = carregaTextura("assets/190.png");
     texEsfera = carregaTextura("assets/016.png");
     texLava = carregaTextura("assets/179.png");
+    texPorta = carregaTextura("assets/233.png");
 
     // cria o shader
     progEsfera = criaShader("shaders/blood.vert", "shaders/blood.frag");
     progLava = criaShader("shaders/lava.vert", "shaders/lava.frag");
+    progDiamond = criaShader("shaders/diamond.vert", "shaders/diamond.frag");
 
     glClearColor(0.05f, 0.05f, 0.1f, 1.0f);
 
