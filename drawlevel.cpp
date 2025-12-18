@@ -6,10 +6,13 @@
 #include "utils/levelmetrics.h"
 #include <cstdio>
 
-extern GLuint texParede; // pode usar como textura de parede (ou crie texParede)
+extern GLuint texParede;
+extern GLuint texParedeInterna;
 extern GLuint texLava;
-extern GLuint texSangue; // pode usar como textura base do sangue (ou crie texBlood)
+extern GLuint texSangue;
 extern GLuint texChao;
+extern GLuint texChaoInterno;
+extern GLuint texTeto;
 
 extern GLuint progLava;
 extern GLuint progSangue;
@@ -18,14 +21,32 @@ extern GLuint progSangue;
 extern float tempoEsfera;
 
 // Config do grid
-static const float TILE = 4.0f;    // tamanho do tile no mundo (ajuste)
-static const float WALL_H = 4.0f;  // altura da parede
-static const float EPS_Y = 0.001f; // evita z-fighting
+static const float TILE = 4.0f;      // tamanho do tile no mundo (ajuste)
+static const float CEILING_H = 4.0f; // altura do teto
+static const float WALL_H = 4.0f;    // altura da parede
+static const float EPS_Y = 0.001f;   // evita z-fighting
 
 static void bindTexture0(GLuint tex)
 {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
+}
+
+static void desenhaQuadTeto(float x, float z, float tile, float tilesUV)
+{
+    float half = tile * 0.5f;
+
+    glBegin(GL_QUADS);
+    // note a ordem invertida (normal para baixo)
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(x - half, CEILING_H, z - half);
+    glTexCoord2f(tilesUV, 0.0f);
+    glVertex3f(x + half, CEILING_H, z - half);
+    glTexCoord2f(tilesUV, tilesUV);
+    glVertex3f(x + half, CEILING_H, z + half);
+    glTexCoord2f(0.0f, tilesUV);
+    glVertex3f(x - half, CEILING_H, z + half);
+    glEnd();
 }
 
 static void desenhaQuadChao(float x, float z, float tile, float tilesUV)
@@ -44,24 +65,31 @@ static void desenhaQuadChao(float x, float z, float tile, float tilesUV)
     glEnd();
 }
 
-static void desenhaTileChao(float x, float z)
+static void desenhaTileChao(float x, float z, GLuint texChaoX, bool temTeto)
 {
     glUseProgram(0); // sem shader
     glColor3f(1, 1, 1);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texChao);
+    glBindTexture(GL_TEXTURE_2D, texChaoX);
 
-    // repete a textura no tile
+    // chão
     desenhaQuadChao(x, z, TILE, 2.0f);
+
+    // teto
+    if (temTeto)
+    {
+        glBindTexture(GL_TEXTURE_2D, texTeto);
+        desenhaQuadTeto(x, z, TILE, 2.0f);
+    }
 }
 
-static void desenhaParede(float x, float z)
+static void desenhaParede(float x, float z, GLuint texParedeX)
 {
     float half = TILE * 0.5f;
 
     glColor3f(1, 1, 1);
-    glBindTexture(GL_TEXTURE_2D, texParede);
+    glBindTexture(GL_TEXTURE_2D, texParedeX);
 
     // textura repetida ao longo da parede
     float tilesX = 1.0f;
@@ -186,10 +214,14 @@ void drawLevel(const MapLoader &map)
 
             char c = data[z][x];
 
-            if (c == '0')
-                desenhaTileChao(wx, wz);
-            else if (c == '1')
-                desenhaParede(wx, wz);
+            if (c == '0') // chão A
+                desenhaTileChao(wx, wz, texChao, false);
+            else if (c == '3') // chão B
+                desenhaTileChao(wx, wz, texChaoInterno, true);
+            else if (c == '1') // parede A
+                desenhaParede(wx, wz, texParede);
+            else if (c == '2') // parede B
+                desenhaParede(wx, wz, texParedeInterna);
             else if (c == 'L')
                 desenhaTileLava(wx, wz);
             else if (c == 'B')
