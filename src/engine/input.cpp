@@ -1,6 +1,6 @@
 #include <GL/glut.h>
 #include <math.h>
-#include "scene.h"
+#include "engine/scene.h"
 
 void keyboard(unsigned char key, int x, int y)
 {

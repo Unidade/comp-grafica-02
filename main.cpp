@@ -2,13 +2,13 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <cstdio>
-#include "scene.h"
-#include "input.h"
-#include "texture.h"
-#include "shader.h"
-#include "utils/maploader.h"
-#include "drawlevel.h"
-#include "utils/levelmetrics.h"
+#include "engine/scene.h"
+#include "engine/input.h"
+#include "engine/texture.h"
+#include "engine/shader.h"
+#include "game/maploader.h"
+#include "game/drawlevel.h"
+#include "game/levelmetrics.h"
 
 static MapLoader gMap;
 

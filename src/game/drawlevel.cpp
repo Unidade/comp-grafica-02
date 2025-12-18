@@ -1,9 +1,9 @@
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <cmath>
-#include "drawlevel.h"
-#include "scene.h"
-#include "utils/levelmetrics.h"
+#include "game/drawlevel.h"
+#include "engine/scene.h"
+#include "game/levelmetrics.h"
 #include <cstdio>
 
 extern GLuint texParede;

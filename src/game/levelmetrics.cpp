@@ -1,4 +1,4 @@
-#include "levelmetrics.h"
+#include "game/levelmetrics.h"
 #include <cmath>
 
 LevelMetrics LevelMetrics::fromMap(const MapLoader& map, float tile)
