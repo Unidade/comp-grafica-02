@@ -213,7 +213,8 @@ void drawLevel(const MapLoader &map)
             m.tileCenter(x, z, wx, wz); // centro do tile
 
             char c = data[z][x];
-
+            
+            //TIRAR A RESPOSNABILIDADE DO TILE DAQUI
             if (c == '0') // chão A
                 desenhaTileChao(wx, wz, texChao, false);
             else if (c == '3') // chão B
