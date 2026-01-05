@@ -20,8 +20,6 @@ int fps = 0;
 int frameCount = 0;
 int previousTime = 0;
 
-GLuint texChao;
-GLuint texParede;
 GLuint texSangue;
 GLuint texLava;
 GLuint progSangue;
@@ -52,7 +50,7 @@ void display()
     frameCount++;
     int currentTime = glutGet(GLUT_ELAPSED_TIME);
 
-    if (currentTime - previousTime > 1000) // passou 1 segundo
+    if (currentTime - previousTime > 1000)
     {
         fps = frameCount;
         frameCount = 0;
@@ -78,7 +76,6 @@ void reshape(int w, int h)
 
     glMatrixMode(GL_MODELVIEW);
 
-    // informa ao módulo de input onde é o centro da janela
     atualizaCentroJanela(w, h);
 }
 
@@ -97,7 +94,7 @@ void timer(int v)
     atualizaMovimento();
 
     glutPostRedisplay();
-    glutTimerFunc(16, timer, 0); // ~60 FPS
+    glutTimerFunc(16, timer, 0);
 }
 
 int main(int argc, char **argv)
@@ -118,13 +115,14 @@ int main(int argc, char **argv)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
 
-    // carregando texturas
-    texChao = carregaTextura("assets/181.png");
-    texParede = carregaTextura("assets/091.png");
+    // Carrega texturas do level (paredes, pisos, teto)
+    initLevelTextures();
+
+    // Texturas especiais (lava, sangue)
     texSangue = carregaTextura("assets/016.png");
     texLava = carregaTextura("assets/179.png");
 
-    // cria o shader
+    // Shaders
     progSangue = criaShader("shaders/blood.vert", "shaders/blood.frag");
     progLava = criaShader("shaders/lava.vert", "shaders/lava.frag");
 
@@ -136,13 +134,14 @@ int main(int argc, char **argv)
     glutKeyboardUpFunc(keyboardUp);
     glutPassiveMotionFunc(mouseMotion);
 
-    glutSetCursor(GLUT_CURSOR_NONE); // esconde o cursor
+    glutSetCursor(GLUT_CURSOR_NONE);
 
     glutTimerFunc(0, timer, 0);
 
-    gMap.load("maps/map1.txt");
-    LevelMetrics m = LevelMetrics::fromMap(gMap, 4.0f); 
-    m.spawnPos(gMap, camX, camZ);
+    gMap.load("maps/map2.txt");
+    LevelMetrics m = LevelMetrics::fromMap(gMap, 4.0f);
+    camX = (gMap.getPlayerStartX() + 0.5f) * 4.0f;
+    camZ = (gMap.getPlayerStartZ() + 0.5f) * 4.0f;
     camY = 1.5f;
 
     glutMainLoop();

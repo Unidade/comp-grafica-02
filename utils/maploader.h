@@ -4,17 +4,29 @@
 #include <vector>
 #include <string>
 
-class MapLoader {
-public:
-    bool load(const char* filename);
+struct Tile
+{
+    bool isWall;
+    bool hasCeiling;
+    int floorTexIndex;
+    int wallTexIndex;
+    char raw;
+};
 
-    const std::vector<std::string>& data() const { return mapData; }
+class MapLoader
+{
+public:
+    bool load(const char *filename);
+
+    const std::vector<std::string> &data() const { return mapData; }
 
     int getWidth() const { return width; }
     int getHeight() const { return height; }
 
     float getPlayerStartX() const { return playerStartX; }
     float getPlayerStartZ() const { return playerStartZ; }
+
+    Tile getTile(int x, int y) const;
 
 private:
     std::vector<std::string> mapData;

@@ -3,6 +3,7 @@
 
 #include "utils/maploader.h"
 
-void drawLevel(const MapLoader& map);
+void initLevelTextures();
+void drawLevel(const MapLoader &map);
 
 #endif
