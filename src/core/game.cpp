@@ -6,6 +6,8 @@
 #include "core/camera.h"
 #include "input/input.h"
 #include "graphics/drawlevel.h"
+#include "core/movement.h"
+
 
 #include <GL/glut.h>
 
@@ -92,3 +94,4 @@ void gameRender()
 
     glutSwapBuffers();
 }
+
