@@ -144,7 +144,7 @@ void gameRender()
 
     setSunDirectionEachFrame();
 
-    drawLevel(gLevel.map);
+    desenhaNivel(gLevel.map);
 
     glutSwapBuffers();
 }

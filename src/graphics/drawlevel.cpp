@@ -29,7 +29,7 @@ static const float EPS_Y = 0.001f;   // evita z-fighting
 static const GLfloat kAmbientOutdoor[] = {0.45f, 0.30f, 0.25f, 1.0f}; // quente (seu atual)
 static const GLfloat kAmbientIndoor[] = {0.12f, 0.12f, 0.18f, 1.0f};  // frio/azulado
 
-static void bindTexture0(GLuint tex)
+static void vinculaTextura0(GLuint tex)
 {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
@@ -63,28 +63,28 @@ static float flickerFluorescente(float t)
     return 0.96f + 0.04f * sinf(t * 5.0f);
 }
 
-static void setIndoorLampAt(float x, float z, float intensity)
+static void configuraLampadaInternaEm(float x, float z, float intensidade)
 {
     // posição da lâmpada (pontual)
     GLfloat pos[] = {x, CEILING_H - 0.05f, z, 1.0f};
     glLightfv(GL_LIGHT1, GL_POSITION, pos);
 
     GLfloat diff[] = {
-        1.20f * intensity,
-        1.22f * intensity,
-        1.28f * intensity,
+        1.20f * intensidade,
+        1.22f * intensidade,
+        1.28f * intensidade,
         1.0f};
     glLightfv(GL_LIGHT1, GL_DIFFUSE, diff);
 
     GLfloat amb[] = {
-        1.10f * intensity,
-        1.10f * intensity,
-        1.12f * intensity,
+        1.10f * intensidade,
+        1.10f * intensidade,
+        1.12f * intensidade,
         1.0f};
     glLightfv(GL_LIGHT1, GL_AMBIENT, amb);
 }
 
-static void beginIndoor(float wx, float wz)
+static void iniciaInterno(float wx, float wz)
 {
     // sol NÃO entra
     glDisable(GL_LIGHT0);
@@ -95,12 +95,12 @@ static void beginIndoor(float wx, float wz)
     glEnable(GL_LIGHT1);
 
     float f = flickerFluorescente(tempo);
-    float intensity = 1.2f * f;
+    float intensidade = 1.2f * f;
 
-    setIndoorLampAt(wx, wz, intensity);
+    configuraLampadaInternaEm(wx, wz, intensidade);
 }
 
-static void endIndoor()
+static void finalizaInterno()
 {
     glDisable(GL_LIGHT1);
 
@@ -165,74 +165,100 @@ static void desenhaTileChao(float x, float z, GLuint texChaoX, bool temTeto)
     }
 }
 
-static void desenhaParede(float x, float z, GLuint texParedeX)
+static bool ehInterno(char c)
+{
+    return (c == '2' || c == '3');
+}
+
+static void aplicaIluminacaoPorVizinho(char nb, float wx, float wz, float nx, float nz)
+{
+    if (ehInterno(nb))
+    {
+        // Se o vizinho é indoor, a face da parede está voltada para dentro.
+        // Posicionamos a lâmpada levemente deslocada para o centro do vizinho.
+        float nwx = wx + nx * TILE;
+        float nwz = wz + nz * TILE;
+        iniciaInterno(nwx, nwz);
+    }
+    else
+    {
+        // Se o vizinho é outdoor, a face da parede deve receber a luz do sol.
+        finalizaInterno();
+    }
+}
+
+static void desenhaParede(float wx, float wz, GLuint texParedeX, char n, char s, char e, char w, char self)
 {
     float half = TILE * 0.5f;
-
-    glColor3f(1, 1, 1);
-    glBindTexture(GL_TEXTURE_2D, texParedeX);
 
     float tilesX = 1.0f;
     float tilesY = 2.0f;
 
+    // Se a própria parede é '2' (Indoor), o topo e a base geralmente são internos/escuros.
+    // Mas as faces laterais dependem do vizinho.
+    
+    // Frente (z+) -> Vizinho SUL
+    aplicaIluminacaoPorVizinho(s, wx, wz, 0, 1);
+    glBindTexture(GL_TEXTURE_2D, texParedeX);
+    glColor3f(1, 1, 1);
     glBegin(GL_QUADS);
-
-    // Frente (z+)
     glNormal3f(0.0f, 0.0f, 1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(x - half, 0.0f, z + half);
-    glTexCoord2f(tilesX, 0.0f);
-    glVertex3f(x + half, 0.0f, z + half);
-    glTexCoord2f(tilesX, tilesY);
-    glVertex3f(x + half, WALL_H, z + half);
-    glTexCoord2f(0.0f, tilesY);
-    glVertex3f(x - half, WALL_H, z + half);
-
-    // Trás (z-)
-    glNormal3f(0.0f, 0.0f, -1.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(x + half, 0.0f, z - half);
-    glTexCoord2f(tilesX, 0.0f);
-    glVertex3f(x - half, 0.0f, z - half);
-    glTexCoord2f(tilesX, tilesY);
-    glVertex3f(x - half, WALL_H, z - half);
-    glTexCoord2f(0.0f, tilesY);
-    glVertex3f(x + half, WALL_H, z - half);
-
-    // Direita (x+)
-    glNormal3f(1.0f, 0.0f, 0.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(x + half, 0.0f, z + half);
-    glTexCoord2f(tilesX, 0.0f);
-    glVertex3f(x + half, 0.0f, z - half);
-    glTexCoord2f(tilesX, tilesY);
-    glVertex3f(x + half, WALL_H, z - half);
-    glTexCoord2f(0.0f, tilesY);
-    glVertex3f(x + half, WALL_H, z + half);
-
-    // Esquerda (x-)
-    glNormal3f(-1.0f, 0.0f, 0.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(x - half, 0.0f, z - half);
-    glTexCoord2f(tilesX, 0.0f);
-    glVertex3f(x - half, 0.0f, z + half);
-    glTexCoord2f(tilesX, tilesY);
-    glVertex3f(x - half, WALL_H, z + half);
-    glTexCoord2f(0.0f, tilesY);
-    glVertex3f(x - half, WALL_H, z - half);
-
-    // Topo
-    glNormal3f(0.0f, 1.0f, 0.0f);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(x - half, WALL_H, z + half);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(x + half, WALL_H, z + half);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(x + half, WALL_H, z - half);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(x - half, WALL_H, z - half);
-
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - half, 0.0f, wz + half);
+    glTexCoord2f(tilesX, 0.0f); glVertex3f(wx + half, 0.0f, wz + half);
+    glTexCoord2f(tilesX, tilesY); glVertex3f(wx + half, WALL_H, wz + half);
+    glTexCoord2f(0.0f, tilesY); glVertex3f(wx - half, WALL_H, wz + half);
     glEnd();
+
+    // Trás (z-) -> Vizinho NORTE
+    aplicaIluminacaoPorVizinho(n, wx, wz, 0, -1);
+    glBindTexture(GL_TEXTURE_2D, texParedeX);
+    glColor3f(1, 1, 1);
+    glBegin(GL_QUADS);
+    glNormal3f(0.0f, 0.0f, -1.0f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx + half, 0.0f, wz - half);
+    glTexCoord2f(tilesX, 0.0f); glVertex3f(wx - half, 0.0f, wz - half);
+    glTexCoord2f(tilesX, tilesY); glVertex3f(wx - half, WALL_H, wz - half);
+    glTexCoord2f(0.0f, tilesY); glVertex3f(wx + half, WALL_H, wz - half);
+    glEnd();
+
+    // Direita (x+) -> Vizinho LESTE
+    aplicaIluminacaoPorVizinho(e, wx, wz, 1, 0);
+    glBindTexture(GL_TEXTURE_2D, texParedeX);
+    glColor3f(1, 1, 1);
+    glBegin(GL_QUADS);
+    glNormal3f(1.0f, 0.0f, 0.0f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx + half, 0.0f, wz + half);
+    glTexCoord2f(tilesX, 0.0f); glVertex3f(wx + half, 0.0f, wz - half);
+    glTexCoord2f(tilesX, tilesY); glVertex3f(wx + half, WALL_H, wz - half);
+    glTexCoord2f(0.0f, tilesY); glVertex3f(wx + half, WALL_H, wz + half);
+    glEnd();
+
+    // Esquerda (x-) -> Vizinho OESTE
+    aplicaIluminacaoPorVizinho(w, wx, wz, -1, 0);
+    glBindTexture(GL_TEXTURE_2D, texParedeX);
+    glColor3f(1, 1, 1);
+    glBegin(GL_QUADS);
+    glNormal3f(-1.0f, 0.0f, 0.0f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - half, 0.0f, wz - half);
+    glTexCoord2f(tilesX, 0.0f); glVertex3f(wx - half, 0.0f, wz + half);
+    glTexCoord2f(tilesX, tilesY); glVertex3f(wx - half, WALL_H, wz + half);
+    glTexCoord2f(0.0f, tilesY); glVertex3f(wx - half, WALL_H, wz - half);
+    glEnd();
+
+    // Topo - Segue o tipo da própria parede
+    if (ehInterno(self)) iniciaInterno(wx, wz); else finalizaInterno();
+    glBindTexture(GL_TEXTURE_2D, texParedeX);
+    glColor3f(1, 1, 1);
+    glBegin(GL_QUADS);
+    glNormal3f(0.0f, 1.0f, 0.0f);
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(wx - half, WALL_H, wz + half);
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(wx + half, WALL_H, wz + half);
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(wx + half, WALL_H, wz - half);
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(wx - half, WALL_H, wz - half);
+    glEnd();
+
+    // Reset para o padrão outdoor ao sair
+    finalizaInterno();
 }
 
 static void desenhaTileLava(float x, float z)
@@ -250,7 +276,7 @@ static void desenhaTileLava(float x, float z)
     glUniform2f(locScr, 0.1f, 0.0f);
     glUniform1f(locHeat, 0.6f);
 
-    bindTexture0(texLava);
+    vinculaTextura0(texLava);
     glUniform1i(locTex, 0);
 
     glColor3f(1, 1, 1);
@@ -272,7 +298,7 @@ static void desenhaTileSangue(float x, float z)
     glUniform1f(locStr, 1.0f);
     glUniform2f(locSpd, 2.0f, 1.3f);
 
-    bindTexture0(texSangue);
+    vinculaTextura0(texSangue);
     glUniform1i(locTex, 0);
 
     glColor3f(1, 1, 1);
@@ -281,50 +307,46 @@ static void desenhaTileSangue(float x, float z)
     glUseProgram(0);
 }
 
-void drawLevel(const MapLoader &map)
+void desenhaNivel(const MapLoader &map)
 {
     const auto &data = map.data();
     int H = map.getHeight();
 
-    // centraliza o mapa no mundo
     LevelMetrics m = LevelMetrics::fromMap(map, TILE);
 
     for (int z = 0; z < H; z++)
     {
-        for (int x = 0; x < (int)data[z].size(); x++)
+        int W = (int)data[z].size();
+        for (int x = 0; x < W; x++)
         {
             float wx, wz;
-            m.tileCenter(x, z, wx, wz); // centro do tile
+            m.tileCenter(x, z, wx, wz);
 
             char c = data[z][x];
 
-            // TIRAR A RESPOSNABILIDADE DO TILE DAQUI
-            if (c == '0') // chão A (outdoor)
+            // Vizinhos para iluminação de parede
+            char n = (z > 0) ? data[z - 1][x] : '0';
+            char s = (z < H - 1) ? data[z + 1][x] : '0';
+            char w = (x > 0) ? data[z][x - 1] : '0';
+            char e = (x < W - 1) ? data[z][x + 1] : '0';
+
+            if (c == '0')
                 desenhaTileChao(wx, wz, texChao, false);
-            else if (c == '3') // chão B (indoor, tem teto)
+            else if (c == '3')
             {
-                beginIndoor(wx, wz);
+                iniciaInterno(wx, wz);
                 desenhaTileChao(wx, wz, texChaoInterno, true);
-                endIndoor();
+                finalizaInterno();
             }
-            else if (c == '1') // parede A (outdoor)
-                desenhaParede(wx, wz, texParede);
-            else if (c == '2') // parede B (indoor)
+            else if (c == '1' || c == '2')
             {
-                beginIndoor(wx, wz);
-                desenhaParede(wx, wz, texParedeInterna);
-                endIndoor();
+                GLuint tex = (c == '1') ? texParede : texParedeInterna;
+                desenhaParede(wx, wz, tex, n, s, e, w, c);
             }
             else if (c == 'L')
-            {
-                // lava é shader: não pega GL_LIGHT0/1.
-                // Se quiser “indoor” com lava escura/clara, a gente ajusta no shader depois.
                 desenhaTileLava(wx, wz);
-            }
             else if (c == 'B')
-            {
                 desenhaTileSangue(wx, wz);
-            }
         }
     }
 }

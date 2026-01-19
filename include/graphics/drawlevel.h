@@ -3,6 +3,6 @@
 
 #include "level/maploader.h"
 
-void drawLevel(const MapLoader& map);
+void desenhaNivel(const MapLoader& map);
 
 #endif
